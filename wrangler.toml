@@ -1,0 +1,32 @@
+name = "template-hono"
+main = "src/app.ts"
+compatibility_date = "2024-12-30"
+
+compatibility_flags = [ "nodejs_compat" ]
+
+[vars]
+VERSION = "1.0.0"
+APP_PORT = 5000
+STAGE = "dev"
+DB_URL = "postgresql://postgres:$Fu3kNAD3u!pGBg@db.pvtnsxszfcveridyxeps.supabase.co:5432/postgres"
+TEST_DB_URL = "postgresql://postgres:$Fu3kNAD3u!pGBg@db.pvtnsxszfcveridyxeps.supabase.co:5432/postgres"
+
+# [[kv_namespaces]]
+# binding = "MY_KV_NAMESPACE"
+# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# [[r2_buckets]]
+# binding = "MY_BUCKET"
+# bucket_name = "my-bucket"
+
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "my-database"
+# database_id = ""
+
+# [ai]
+# binding = "AI"
+
+# [observability]
+# enabled = true
+# head_sampling_rate = 1
