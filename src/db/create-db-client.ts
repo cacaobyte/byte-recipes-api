@@ -17,7 +17,7 @@ export function createDbClient(c: Context) {
       pool: new pg.Pool({
         connectionString: c.env.DB_URL,
         max: 50, // Set maximum <number> of client(s) in the pool
-        connectionTimeoutMillis: 1000, // return an error after <number> second(s) if connection could not be established
+        connectionTimeoutMillis: 2000, // return an error after <number> second(s) if connection could not be established
         idleTimeoutMillis: 0, // close idle clients after <number> second(s)
       }),
     }),
@@ -35,7 +35,7 @@ export function createTestDbClient(c: Context) {
       pool: new pg.Pool({
         connectionString: c.env.TEST_DB_URL,
         max: 50, // Set maximum <number> of client(s) in the pool
-        connectionTimeoutMillis: 1000, // return an error after <number> second(s) if connection could not be established
+        connectionTimeoutMillis: 2000, // return an error after <number> second(s) if connection could not be established
         idleTimeoutMillis: 0, // close idle clients after <number> second(s)
       }),
     }),

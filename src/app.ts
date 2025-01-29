@@ -5,6 +5,7 @@ import { version } from '../package.json';
 import { routes } from './controllers/routes';
 import { setUpDbClientMiddleware } from './middlewares/set-up-db-client';
 import { HonoEnv } from './types/hono';
+import { Context } from 'hono';
 
 const app = new OpenAPIHono<HonoEnv>();
 
@@ -38,6 +39,10 @@ app.use(setUpDbClientMiddleware);
 routes.forEach(route => {
   app.route('/', route);
 });
+
+app.get('/', (c: Context)=> {
+  return c.json({ message: 'API Byte Recipes v1' });
+})
 
 app.notFound(c => {
   return c.json({ message: 'Not Found' }, 404);

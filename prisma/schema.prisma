@@ -19,24 +19,183 @@ enum UserRoleType {
   USER
 }
 
+enum LanguageType {
+  EN
+  ES
+}
+
+enum ThemeType {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
 model users {
-  id         String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at DateTime     @default(now()) @db.Timestamptz(6)
-  updated_at DateTime     @default(now()) @db.Timestamptz(6)
-  deleted_at DateTime?    @db.Timestamptz(6)
-  first_name String?
-  last_name  String?
-  email      String       @unique
-  role       UserRoleType @default(USER)
+  id_user               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email                 String        @unique
+  password              String        @db.VarChar(255) // Password Hashed with bcrypt
+  name                  String        @db.VarChar(255)
+  role                  UserRoleType  @default(USER)
+  is_active             Boolean       @default(true)
+  created_at            DateTime      @default(now()) @db.Timestamptz(6)
+  created_by            String?       @db.Uuid
+  updated_at            DateTime?     @updatedAt @db.Timestamptz(6)
+  updated_by            String?       @db.Uuid
+  disabled_at           DateTime?     @db.Timestamptz(6)
+  disabled_by           String?       @db.Uuid
+
+  createdBy             users?        @relation("UserCreatedBy", fields: [created_by], references: [id_user])
+  usersCreated          users[]       @relation("UserCreatedBy")
+  updatedBy             users?        @relation("UserUpdatedBy", fields: [updated_by], references: [id_user])
+  usersUpdated          users[]       @relation("UserUpdatedBy")
+  disabledBy            users?        @relation("UserDisabledBy", fields: [disabled_by], references: [id_user])
+  usersDisabled         users[]       @relation("UserDisabledBy")
+
+  user_settings         user_settings?
+  user_sessions         user_sessions[]
+  ingredients           ingredients[]
+  recipes               recipes[]
 }
 
-model products {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime  @default(now()) @db.Timestamptz(6)
-  deleted_at  DateTime? @db.Timestamptz(6)
-  name        String
-  description String?
-  price       Float
+
+/* Scripts examples
+  INSERT INTO "user" (email, password, name, role)
+  VALUES
+    ('admin@example.com', 'admin', 'Admin Test', 'ADMIN'),
+    ('user1@example.com', 'user1', 'User 1', 'USER'),
+    ('user2@example.com', 'user2', 'User 2', 'USER');
+
+  UPDATE "user" SET role = 'SUPER_ADMIN' WHERE email = 'admin@example.com';
+*/
+
+model countries {
+  id_code      String     @id @db.VarChar(10)  // Country Code (e.g., GT, US)
+  name         String     @db.VarChar(255) // Country Name (e.g., Guatemala, United States)
+  extension    String     @db.VarChar(10)  // Country Extension (e.g., +502, +1)
+  is_active    Boolean    @default(true)
+
+  user_settings user_settings[]
 }
 
+/* Scripts examples
+  INSERT INTO countries (name, code, extension)
+  VALUES
+    ('Guatemala', 'GT', '+502'),
+    ('United States', 'US', '+1');
+*/
+
+model currency {
+  id_code       String      @id @db.VarChar(10)  // Currency Code (e.g., GTQ, USD)
+  name          String      @db.VarChar(255) // Currency Name (e.g., Quetzal, Dollar)
+  symbol        String      @db.VarChar(10)  // Currency Symbol (e.g., Q, $)
+  is_active     Boolean     @default(true)
+
+  user_settings user_settings[]
+  prices        prices[]
+}
+
+/* Scripts examples
+  INSERT INTO currency (name, symbol, code)
+  VALUES
+    ('Quetzal', 'Q', 'GTQ'),
+    ('Dollar', '$', 'USD');
+*/
+
+model user_settings {
+  user_id               String        @id @db.Uuid @unique
+  country_id            String?       @db.VarChar(10)
+  currency_id           String?       @db.VarChar(10)
+  language              LanguageType  @default(ES)
+  theme                 ThemeType     @default(LIGHT)
+  timezone              String        @default("America/Guatemala") @db.VarChar(100)
+
+  user                  users         @relation(fields: [user_id], references: [id_user], onDelete: Cascade)
+  country               countries?    @relation(fields: [country_id], references: [id_code], onDelete: SetNull)
+  currency              currency?     @relation(fields: [currency_id], references: [id_code], onDelete: SetNull)
+}
+
+model user_sessions {
+  id_sessions           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id               String        @db.Uuid
+  access_token          String        @db.VarChar(255)
+  refresh_token         String        @db.VarChar(255)
+  expires_at            DateTime      @db.Timestamptz(6)
+  is_active             Boolean       @default(true)
+  device_id             String?       @db.VarChar(255)
+  device_name           String?       @db.VarChar(255)
+  device_type           String?       @db.VarChar(255)
+  device_os             String?       @db.VarChar(255)
+  device_ip             String?       @db.VarChar(255)
+  device_location       String?       @db.VarChar(255)
+  created_at            DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime?     @updatedAt @db.Timestamptz(6)
+  disabled_at           DateTime?     @db.Timestamptz(6)
+  user                  users         @relation(fields: [user_id], references: [id_user], onDelete: Cascade)
+}
+
+model measurement_units {
+  id_unit              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                 String        @db.VarChar(255) // Unit Name (e.g., Cup, Ounce, Unit, etc.)
+  abbreviation         String        @db.VarChar(10)  // Unit Abbreviation (e.g., C, Oz, U, etc.)
+  type                 String        @db.VarChar(255) // Unit Type (e.g., Volume, Weight, etc.)
+  conversion_factor    Float?        @default(1)      // Conversion Factor (e.g., 1, 0.125, 0.03125, etc.)
+  is_active            Boolean       @default(true)
+
+  ingredients          ingredients[]
+}
+
+model ingredients {
+  id_ingredient         Int                 @id @default(autoincrement())
+  user_id               String              @db.Uuid
+  name                  String              @db.VarChar(255)
+  description           String?             @db.Text
+  unit_id               String              @db.Uuid
+  is_active             Boolean             @default(true)
+
+  unit                  measurement_units   @relation(fields: [unit_id], references: [id_unit])
+  user                  users               @relation(fields: [user_id], references: [id_user], onDelete: Cascade)
+
+  prices                prices[]
+  recipe_items          recipe_item[]
+}
+
+model prices {
+  id_price              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ingredient_id         Int
+  currency_id           String        @db.VarChar(10)
+  region                String?
+  amount                Float
+
+  ingredient            ingredients    @relation(fields: [ingredient_id], references: [id_ingredient], onDelete: Cascade)
+  currency              currency       @relation(fields: [currency_id], references: [id_code], onDelete: Cascade)
+  
+}
+
+model recipes {
+  id_recipe             Int                 @id @default(autoincrement())
+  user_id               String              @db.Uuid
+  name                  String              @db.VarChar(255)
+  description           String?             @db.Text
+  category              String              @db.VarChar(255)
+  is_active             Boolean             @default(true)
+  created_at            DateTime            @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime            @updatedAt @db.Timestamptz(6)
+
+  user                  users               @relation(fields: [user_id], references: [id_user], onDelete: Cascade)
+
+  recipe_items          recipe_item[]
+}
+
+model recipe_item {
+  id_recipe_item        Int                 @id @default(autoincrement())
+  recipe_id             Int
+  ingredient_id         Int
+  quantity              Float
+  unit_id               String              @db.Uuid
+  amount                Float
+  created_at            DateTime            @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime            @updatedAt @db.Timestamptz(6)
+
+  recipe                recipes             @relation(fields: [recipe_id], references: [id_recipe], onDelete: Cascade)
+  ingredient            ingredients         @relation(fields: [ingredient_id], references: [id_ingredient], onDelete: Cascade)
+}

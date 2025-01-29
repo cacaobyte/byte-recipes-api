@@ -1,4 +1,4 @@
-name = "template-hono"
+name = "byte-recipes-api"
 main = "src/app.ts"
 compatibility_date = "2024-12-30"
 
@@ -10,6 +10,8 @@ APP_PORT = 5000
 STAGE = "dev"
 DB_URL = "postgresql://postgres:$Fu3kNAD3u!pGBg@db.pvtnsxszfcveridyxeps.supabase.co:5432/postgres"
 TEST_DB_URL = "postgresql://postgres:$Fu3kNAD3u!pGBg@db.pvtnsxszfcveridyxeps.supabase.co:5432/postgres"
+JWT_SECRET = "thisisasecret"
+JWT_REFRESH_SECRET = "thisisarefreshsecret"
 
 # [[kv_namespaces]]
 # binding = "MY_KV_NAMESPACE"

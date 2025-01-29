@@ -7,6 +7,8 @@ type Bindings = {
   STAGE: string;
   DB_URL: string;
   TEST_DB_URL: string;
+  JWT_SECRET: string;
+  JWT_REFRESH_SECRET: string;
 };
 
 export type HonoEnv = {

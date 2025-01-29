@@ -1,5 +1,5 @@
-import { getProductsData, GetProductsDataArgs } from '@/data/products/get-products';
-import { productsOpenApiSchema } from '@/data/products/schema';
+import { getProductsData, GetProductsDataArgs } from '@/data/product/get-products';
+import { productsOpenApiSchema } from '@/data/product/schema';
 import { type AppRouteHandler } from '@/types/hono';
 import { listQuerySchema, paginationSchema } from '@/utils/zod-schemas';
 import { createRoute, z } from '@hono/zod-openapi';
